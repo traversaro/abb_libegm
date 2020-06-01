@@ -15,16 +15,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
-        
-    - name: Install vcpkg Dependencies
-      shell: bash
-      run: |
-        ${VCPKG_INSTALLATION_ROOT}/vcpkg.exe install --triplet x64-windows boost-asio boost-math boost-smart-ptr protobuf 
+    
+    # Restore from cache the previously built ports. If "cache miss", then provision vcpkg, install desired ports, finally cache everything for the next run.
+    - name: Restore from cache and run vcpkg
+      uses: lukka/run-vcpkg@v3
+      with:
+        # Response file stored in source control, it provides the list of ports and triplet(s).
+        vcpkgArguments: 'install --triplet x64-windows boost-asio boost-math boost-smart-ptr protobuf'
+        vcpkgGitCommitId: 6d36e2a86baf8d227fc6dce587bd69997d67fb5e 
+
     - name: Build the project 
       shell: bash
       run: | 
         mkdir  build
         cd build
-        cmake -DCMAKE_TOOLCHAIN_FILE=${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake ..
+        cmake -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake ..
         cmake --config Release --build .
         cmake --install .
