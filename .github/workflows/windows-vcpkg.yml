@@ -21,7 +21,7 @@ jobs:
       uses: lukka/run-vcpkg@v3
       with:
         # Response file stored in source control, it provides the list of ports and triplet(s).
-        vcpkgArguments: 'install --triplet x64-windows boost-asio boost-math boost-smart-ptr protobuf'
+        vcpkgArguments: '--triplet x64-windows boost-asio boost-math boost-smart-ptr protobuf'
         vcpkgGitCommitId: 6d36e2a86baf8d227fc6dce587bd69997d67fb5e 
 
     - name: Build the project 
