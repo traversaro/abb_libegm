@@ -1,0 +1,41 @@
+name: Windows vcpkg Workflow
+
+on:
+  push:
+  pull_request:
+  schedule:
+  # * is a special character in YAML so you have to quote this string
+  # Execute a "nightly" build at 2 AM UTC 
+  - cron:  '0 2 * * *'
+
+jobs:
+  build:
+    name: 'Windows vcpkg job'
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@master
+    
+    - name: Inspect environment
+      shell: bash
+      run: | 
+        env
+        cmake --version
+    
+    # Restore from cache the previously built ports. If "cache miss", then provision vcpkg, install desired ports, finally cache everything for the next run.
+    - name: Restore from cache and run vcpkg
+      uses: lukka/run-vcpkg@v3
+      with:
+        # Response file stored in source control, it provides the list of ports and triplet(s).
+        vcpkgArguments: '--triplet x64-windows boost-asio boost-math boost-smart-ptr protobuf'
+        vcpkgGitCommitId: 6d36e2a86baf8d227fc6dce587bd69997d67fb5e
+        vcpkgDirectory: '${{ github.workspace }}/../vcpkg'  
+
+    - name: Configure the project 
+      shell: bash
+      run: | 
+        mkdir  build
+        cd build
+        cmake -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake ..
+        cmake --build . --config Release
+        cmake --install . --config Release
