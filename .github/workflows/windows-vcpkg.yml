@@ -31,11 +31,11 @@ jobs:
         vcpkgGitCommitId: 6d36e2a86baf8d227fc6dce587bd69997d67fb5e
         vcpkgDirectory: '${{ github.workspace }}/../vcpkg'  
 
-    - name: Build the project 
+    - name: Configure the project 
       shell: bash
       run: | 
         mkdir  build
         cd build
         cmake -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake ..
         cmake --config Release --build .
-        cmake --install .
+        cmake --config Release --install .
